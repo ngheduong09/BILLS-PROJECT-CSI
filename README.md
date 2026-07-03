@@ -25,6 +25,6 @@ Data Analysis
 LLM
 - Google Gemini
 
-Author: Nick Nguyen (Duong) - Accepted to University of Florida, Indiana University Bloomington, Michigan State UNiversity, Texas A&M
+Author: Nick Nguyen (Duong) - Accepted to University of Florida, Indiana University Bloomington, Michigan State University, Texas A&M
 Mr. Nguyen Trung Hieu 
 At first, it was only an interesting made-up idea, but after a few hard weeks, the result was much better than expected! 😄
