@@ -176,13 +176,76 @@ def page_home():
             st.balloons()
 
 
+# def page_data_storage():
+#     st.header("Kho Dữ liệu Hóa đơn")
+#     st.write("Dưới đây là toàn bộ dữ liệu đã được trích xuất và lưu trữ.")
+#     if not st.session_state.data_df.empty:
+#         st.dataframe(st.session_state.data_df)
+        
+#         # Chuyển đổi DataFrame thành CSV để người dùng có thể tải về
+#         csv = st.session_state.data_df.to_csv(index=False).encode('utf-8')
+#         st.download_button(
+#            "Tải về file CSV",
+#            csv,
+#            "hoa_don_da_trich_xuat.csv",
+#            "text/csv",
+#            key='download-csv'
+#         )
+#     else:
+#         st.info("Chưa có dữ liệu nào được lưu. Vui lòng tải lên hóa đơn ở trang chủ.")
+
 def page_data_storage():
     st.header("Kho Dữ liệu Hóa đơn")
     st.write("Dưới đây là toàn bộ dữ liệu đã được trích xuất và lưu trữ.")
-    if not st.session_state.data_df.empty:
-        st.dataframe(st.session_state.data_df)
+
+    # Kiểm tra nếu DataFrame rỗng
+    if st.session_state.data_df.empty:
+        st.info("Chưa có dữ liệu nào được lưu. Vui lòng tải lên hóa đơn ở trang chủ.")
+        return
+
+    # --- TÍNH NĂNG XÓA TỪNG HÓA ĐƠN ---
+    # Thêm một cột 'Xóa' vào DataFrame để hiển thị các nút bấm
+    # Sử dụng st.data_editor để có thể tương tác
+    st.write("Bạn có thể xóa từng hóa đơn bằng cách tích vào ô vuông ở dòng tương ứng và nhấn nút bên dưới.")
+    
+    # Chuyển DataFrame sang định dạng có thể chỉnh sửa
+    # Thêm cột "delete" để người dùng chọn
+    df_with_delete = st.session_state.data_df.copy()
+    df_with_delete.insert(0, "Xóa", False)
+    
+    # Hiển thị bảng dữ liệu có thể chỉnh sửa
+    edited_df = st.data_editor(
+        df_with_delete,
+        hide_index=True,
+        # Cấu hình để cột "Xóa" là một checkbox
+        column_config={"Xóa": st.column_config.CheckboxColumn(required=True)},
+        disabled=st.session_state.data_df.columns # Không cho phép sửa các cột dữ liệu khác
+    )
+
+    # Lấy danh sách các dòng được chọn để xóa
+    rows_to_delete = edited_df[edited_df["Xóa"]].index
+
+    if st.button("Xóa các hóa đơn đã chọn", type="primary", disabled=len(rows_to_delete) == 0):
+        # Lấy lại DataFrame gốc từ session_state
+        df_original = st.session_state.data_df
+        # Xóa các hàng đã chọn
+        df_updated = df_original.drop(index=rows_to_delete).reset_index(drop=True)
         
-        # Chuyển đổi DataFrame thành CSV để người dùng có thể tải về
+        # Cập nhật lại session_state và file CSV
+        st.session_state.data_df = df_updated
+        st.session_state.data_df.to_csv(DATA_FILE, index=False)
+        
+        st.success(f"Đã xóa thành công {len(rows_to_delete)} hóa đơn.")
+        # Chạy lại script để cập nhật giao diện ngay lập tức
+        st.rerun()
+
+    st.markdown("---")
+
+    # --- TÍNH NĂNG TẢI VỀ VÀ RESET ---
+    col1, col2 = st.columns(2)
+
+    # Cột 1: Nút tải về
+    with col1:
         csv = st.session_state.data_df.to_csv(index=False).encode('utf-8')
         st.download_button(
            "Tải về file CSV",
@@ -191,8 +254,19 @@ def page_data_storage():
            "text/csv",
            key='download-csv'
         )
-    else:
-        st.info("Chưa có dữ liệu nào được lưu. Vui lòng tải lên hóa đơn ở trang chủ.")
+
+    # Cột 2: Nút Reset
+    with col2:
+        if st.button("🔴 Reset Toàn bộ Dữ liệu", help="Hành động này sẽ xóa tất cả dữ liệu hóa đơn đã lưu!"):
+            # Tạo DataFrame rỗng
+            empty_df = pd.DataFrame(columns=st.session_state.data_df.columns)
+            
+            # Cập nhật session_state và ghi đè file CSV
+            st.session_state.data_df = empty_df
+            st.session_state.data_df.to_csv(DATA_FILE, index=False)
+            
+            st.warning("Đã xóa toàn bộ dữ liệu!")
+            st.rerun()
 
 def page_visualization():
     st.header("Trực quan hóa Chi tiêu")
@@ -340,3 +414,7 @@ elif page == "🗃️ Kho Dữ Liệu":
     page_data_storage()
 elif page == "🤖 Chatbot Tư Vấn":
     page_chatbot()
+
+
+
+st.write("Gemini available:", GEMINI_AVAILABLE)
