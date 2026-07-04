@@ -32,6 +32,12 @@ label2color = {
     'TOTAL': 'red'
 }
 
+import os
+
+st.write("Current directory:", os.getcwd())
+st.write("Files here:", os.listdir("."))
+st.write("Model exists:", os.path.exists(MODEL_PATH))
+
 # Sử dụng cache của Streamlit để chỉ tải model và OCR reader một lần
 @st.cache_resource
 def load_resources():
@@ -416,5 +422,3 @@ elif page == "🤖 Chatbot Tư Vấn":
     page_chatbot()
 
 
-
-st.write("Gemini available:", GEMINI_AVAILABLE)
