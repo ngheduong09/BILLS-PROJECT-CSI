@@ -22,8 +22,12 @@ except (FileNotFoundError, KeyError):
     st.sidebar.warning("Không tìm thấy Google API Key. Tính năng Chatbot sẽ bị vô hiệu hóa.")
 
 
-MODEL_PATH = "./layoutlm-sroie-finetuned-modern"
-DATA_FILE = "extracted_data.csv" # File để lưu trữ dữ liệu
+from pathlib import Path
+
+BASE_DIR = Path(__file__).parent
+
+MODEL_PATH = BASE_DIR / "layoutlm-sroie-finetuned-modern"
+DATA_FILE = BASE_DIR / "extracted_data.csv" # File để lưu trữ dữ liệu
 
 label2color = {
     'COMPANY': 'blue',
@@ -34,9 +38,7 @@ label2color = {
 
 import os
 
-st.write("Current directory:", os.getcwd())
-st.write("Files here:", os.listdir("."))
-st.write("Model exists:", os.path.exists(MODEL_PATH))
+
 
 # Sử dụng cache của Streamlit để chỉ tải model và OCR reader một lần
 @st.cache_resource
