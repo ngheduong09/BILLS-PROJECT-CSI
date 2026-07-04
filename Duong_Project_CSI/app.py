@@ -424,3 +424,7 @@ elif page == "🤖 Chatbot Tư Vấn":
     page_chatbot()
 
 
+try:
+    ...
+except Exception:
+    st.error("⚠️ Something went wrong while loading the AI model. Please try again later.")
