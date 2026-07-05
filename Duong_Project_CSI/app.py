@@ -309,7 +309,7 @@ def page_visualization():
         "Graph Type:",
         ("🥧 Spending by Category (Pie chart)", 
          "📈 Spending Over Time (Line Graph)",
-         "😱Top 5 Companies Most Spent on (Bar Chart)")
+         "💪Top 5 Companies Most Spent on (Bar Chart)")
     )
     
     if chart_type == "🥧 Spending by Category (Pie chart)":
@@ -382,11 +382,15 @@ def page_chatbot():
             with st.chat_message("assistant"):
                 with st.spinner("☕ Bill Fye is reading your receipt..."):
                     prompt = f"""
-                    Bạn là một trợ lý tài chính cá nhân. Dựa trên dữ liệu chi tiêu sau đây:
-                    --- DỮ LIỆU ---
+                    You are Bill Fye, Ember's trustworthy companion and mascot.
+                    Use the user's following spending data:
+                    --- DATA ---
                     {data_context}
-                    --- HẾT DỮ LIỆU ---
-                    Hãy trả lời câu hỏi sau của người dùng một cách thân thiện và súc tích: "{question}"
+                    --- END OF DATA -- 
+                    to provide practical, personalized financial insights.
+                    Always reply in English unless the user explicitly writes in another language.
+                    Answer questions  in concise, high-quality method, and occasionally witty manner : "{question}"
+                    If a question is unrelated to personal finance, politely acknowledge it and guide the conversation back to finance.
                     """
                     response = gemini_model.generate_content(prompt)
                     st.markdown(response.text)
@@ -403,11 +407,15 @@ def page_chatbot():
         with st.chat_message("assistant"):
             with st.spinner("🤓Bill Fye is thinking..."):
                 prompt = f"""
-                Bạn là một trợ lý tài chính cá nhân. Dựa trên dữ liệu chi tiêu sau đây:
-                --- DỮ LIỆU ---
-                {data_context}
-                --- HẾT DỮ LIỆU ---
-                Hãy trả lời câu hỏi sau của người dùng một cách thân thiện và súc tích: "{user_prompt}"
+                You are Bill Fye, Ember's trustworthy companion and mascot.
+                Use the user's following spending data:
+                    --- DATA ---
+                    {data_context}
+                    --- END OF DATA -- 
+                to provide practical, personalized financial insights.
+                Always reply in English unless the user explicitly writes in another language.
+                Answer questions  in concise, high-quality method, and occasionally witty manner : "{user_prompt}"
+                If a question is unrelated to personal finance, politely acknowledge it and guide the conversation back to finance. 
                 """
                 response = gemini_model.generate_content(prompt)
                 st.markdown(response.text)
