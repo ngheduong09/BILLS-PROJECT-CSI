@@ -136,6 +136,11 @@ def draw_predictions(image, predictions):
 
 
 # --- ĐỊNH NGHĨA CÁC TRANG (SECTIONS) ---
+st.set_page_config(
+    page_title="Ember",
+    page_icon="🔥",
+    layout="wide"
+)
 
 def page_home():
     st.header("Welcome back.")
@@ -219,7 +224,7 @@ def page_data_storage():
     # Chuyển DataFrame sang định dạng có thể chỉnh sửa
     # Thêm cột "delete" để người dùng chọn
     df_with_delete = st.session_state.data_df.copy()
-    df_with_delete.insert(0, "Xóa", False)
+    df_with_delete.insert(0, "Delete", False)
     
     # Hiển thị bảng dữ liệu có thể chỉnh sửa
     edited_df = st.data_editor(
@@ -411,16 +416,16 @@ def page_chatbot():
 st.sidebar.title("🔥 Ember: Personal Finance powered by AI.")
 page = st.sidebar.radio(
     "Keep the transactions. Remember the warmth.",
-    ["🏠 Upload your bill", "📊 Trực Quan Hóa", "Your receipts", "🤓Bill Fye the Finance Guy"]
+    ["🏠Upload your bill", "📊Visualize", "🗃️Archives", "🤓Bill Fye the Finance Guy"]
 )
 
-if page == "🏠 Tải Hóa Đơn":
+if page == "🏠Upload your bill":
     page_home()
-elif page == "📊 Trực Quan Hóa":
+elif page == "📊Visualize":
     page_visualization()
-elif page == "🗃️ Kho Dữ Liệu":
+elif page == "🗃️Archives":
     page_data_storage()
-elif page == "🤖 Chatbot Tư Vấn":
+elif page == "🤓Bill Fye the Finance Guy":
     page_chatbot()
 
 
@@ -429,8 +434,3 @@ try:
 except Exception:
     st.error("⚠️ Something went wrong while loading the AI model. Please try again later.")
 
-st.set_page_config(
-    page_title="Ember",
-    page_icon="🔥",
-    layout="wide"
-)
