@@ -138,11 +138,11 @@ def draw_predictions(image, predictions):
 # --- ĐỊNH NGHĨA CÁC TRANG (SECTIONS) ---
 
 def page_home():
-    st.header("Trang chủ: Tải lên và Xử lý Hóa đơn")
-    st.write("Chọn một hoặc nhiều file ảnh hóa đơn để trích xuất thông tin.")
+    st.header("Welcome back.")
+    st.write("Upload receipts and let Ember organize, understand, and remember them.")
     
     uploaded_files = st.file_uploader(
-        "Chọn file ảnh", 
+        "Drag receipts here or upload images to begin.", 
         type=["jpg", "jpeg", "png"], 
         accept_multiple_files=True
     )
@@ -151,36 +151,36 @@ def page_home():
         new_data = []
         for uploaded_file in uploaded_files:
             st.markdown(f"---")
-            st.subheader(f"Kết quả cho: `{uploaded_file.name}`")
+            st.subheader(f"Your story: `{uploaded_file.name}`")
             image = Image.open(uploaded_file).convert("RGB")
             
             col1, col2 = st.columns(2)
-            col1.image(image, caption="Ảnh Gốc", use_container_width=True)
+            col1.image(image, caption="OG image", use_container_width=True)
 
-            with st.spinner("Đang trích xuất..."):
+            with st.spinner("🔍 Reading your receipt..."):
                 extracted_data, word_level_predictions = process_image(image)
             
             if extracted_data:
                 annotated_image = draw_predictions(image, word_level_predictions)
-                col2.image(annotated_image, caption="Kết quả Trích xuất", use_container_width=True)
+                col2.image(annotated_image, caption="🔥 Another memory kept", use_container_width=True)
                 
-                st.write("Thông tin trích xuất:")
+                st.write("Here's your story:")
                 st.json(extracted_data)
                 
                 # Yêu cầu người dùng gán danh mục
-                category_options = ["Tạp hóa", "Tiện ích", "Du lịch", "Vật tư Văn phòng", "Tiền thuê nhà", "Khác"]
-                category = st.selectbox(f"Chọn danh mục cho hóa đơn '{uploaded_file.name}':", category_options, key=uploaded_file.name)
+                category_options = ["🍔 Food & Drinks", "⚡Utilities", "🎉 Entertainment", "💼 Work", "🏠 Rent", "🤔Other"]
+                category = st.selectbox(f"Choose your category '{uploaded_file.name}':", category_options, key=uploaded_file.name)
                 
                 extracted_data["CATEGORY"] = category
                 new_data.append(extracted_data)
             else:
-                col2.error("Không tìm thấy văn bản trong ảnh này.")
+                col2.error("Hmm... I couldn't read this receipt. Try a clearer photo.")
         
-        if st.button("Lưu tất cả kết quả đã trích xuất"):
+        if st.button("🔥 Save to Archive ⭐"):
             new_df = pd.DataFrame(new_data)
             st.session_state.data_df = pd.concat([st.session_state.data_df, new_df], ignore_index=True)
             st.session_state.data_df.to_csv(DATA_FILE, index=False)
-            st.success(f"Đã lưu thành công {len(new_data)} hóa đơn vào `{DATA_FILE}`!")
+            st.success(f"🧨Memory{len(new_data)} safely kept in `{DATA_FILE}`!")
             st.balloons()
 
 
@@ -203,18 +203,18 @@ def page_home():
 #         st.info("Chưa có dữ liệu nào được lưu. Vui lòng tải lên hóa đơn ở trang chủ.")
 
 def page_data_storage():
-    st.header("Kho Dữ liệu Hóa đơn")
-    st.write("Dưới đây là toàn bộ dữ liệu đã được trích xuất và lưu trữ.")
+    st.header("Data Archives🗃️")
+    st.write("Here are your traces, stored and kept safely")
 
     # Kiểm tra nếu DataFrame rỗng
     if st.session_state.data_df.empty:
-        st.info("Chưa có dữ liệu nào được lưu. Vui lòng tải lên hóa đơn ở trang chủ.")
+        st.info("No data yet! Upload a receipt to Ember")
         return
 
     # --- TÍNH NĂNG XÓA TỪNG HÓA ĐƠN ---
     # Thêm một cột 'Xóa' vào DataFrame để hiển thị các nút bấm
     # Sử dụng st.data_editor để có thể tương tác
-    st.write("Bạn có thể xóa từng hóa đơn bằng cách tích vào ô vuông ở dòng tương ứng và nhấn nút bên dưới.")
+    st.write("Delete receiptss by ticking the box in the row and the button below..")
     
     # Chuyển DataFrame sang định dạng có thể chỉnh sửa
     # Thêm cột "delete" để người dùng chọn
@@ -226,14 +226,14 @@ def page_data_storage():
         df_with_delete,
         hide_index=True,
         # Cấu hình để cột "Xóa" là một checkbox
-        column_config={"Xóa": st.column_config.CheckboxColumn(required=True)},
+        column_config={"Delete": st.column_config.CheckboxColumn(required=True)},
         disabled=st.session_state.data_df.columns # Không cho phép sửa các cột dữ liệu khác
     )
 
     # Lấy danh sách các dòng được chọn để xóa
     rows_to_delete = edited_df[edited_df["Xóa"]].index
 
-    if st.button("Xóa các hóa đơn đã chọn", type="primary", disabled=len(rows_to_delete) == 0):
+    if st.button("🗑️ Delete Selected Receipts", type="primary", disabled=len(rows_to_delete) == 0):
         # Lấy lại DataFrame gốc từ session_state
         df_original = st.session_state.data_df
         # Xóa các hàng đã chọn
@@ -243,7 +243,7 @@ def page_data_storage():
         st.session_state.data_df = df_updated
         st.session_state.data_df.to_csv(DATA_FILE, index=False)
         
-        st.success(f"Đã xóa thành công {len(rows_to_delete)} hóa đơn.")
+        st.success(f"Successfully remove {len(rows_to_delete)} receipt🧹")
         # Chạy lại script để cập nhật giao diện ngay lập tức
         st.rerun()
 
@@ -256,7 +256,7 @@ def page_data_storage():
     with col1:
         csv = st.session_state.data_df.to_csv(index=False).encode('utf-8')
         st.download_button(
-           "Tải về file CSV",
+           "📥 Export Your Data (.csv)",
            csv,
            "hoa_don_da_trich_xuat.csv",
            "text/csv",
@@ -265,7 +265,7 @@ def page_data_storage():
 
     # Cột 2: Nút Reset
     with col2:
-        if st.button("🔴 Reset Toàn bộ Dữ liệu", help="Hành động này sẽ xóa tất cả dữ liệu hóa đơn đã lưu!"):
+        if st.button("🔴 Clear My Archive", help="⚠️ This will permanently delete all saved receipts!"):
             # Tạo DataFrame rỗng
             empty_df = pd.DataFrame(columns=st.session_state.data_df.columns)
             
@@ -273,16 +273,16 @@ def page_data_storage():
             st.session_state.data_df = empty_df
             st.session_state.data_df.to_csv(DATA_FILE, index=False)
             
-            st.warning("Đã xóa toàn bộ dữ liệu!")
+            st.warning("✨ Your archive has been cleared.")
             st.rerun()
 
 def page_visualization():
-    st.header("Trực quan hóa Chi tiêu")
-    st.write("Xem các biểu đồ thống kê dựa trên dữ liệu hóa đơn của bạn.")
+    st.header("📈 Spending Insights")
+    st.write("View informative charts based on your spending data😁")
     
     df = st.session_state.data_df.copy()
     if df.empty:
-        st.warning("Không có dữ liệu để vẽ biểu đồ.")
+        st.success("🔥 Your archive is now empty. Ready for a fresh start?")
         return
 
     # --- BƯỚC LÀM SẠCH VÀ CHUYỂN ĐỔI CHUNG ---
@@ -293,25 +293,25 @@ def page_visualization():
     # ⭐️ SỬA LỖI: Xóa dòng dropna chung ở đây
     # df.dropna(subset=['TOTAL', 'DATE', 'CATEGORY'], inplace=True) 
 
-    st.subheader("Chọn loại biểu đồ bạn muốn xem:")
+    st.subheader("Choose the Type of Graph You Want to See:")
     
     chart_type = st.radio(
-        "Loại biểu đồ:",
-        ("Chi tiêu theo danh mục (Biểu đồ tròn)", 
-         "Chi tiêu theo thời gian (Biểu đồ đường)",
-         "Top 5 nhà cung cấp chi tiêu nhiều nhất (Biểu đồ cột)")
+        "Graph Type:",
+        ("🥧 Spending by Category (Pie chart)", 
+         "📈 Spending Over Time (Line Graph)",
+         "😱Top 5 Companies Most Spent on (Bar Chart)")
     )
     
-    if chart_type == "Chi tiêu theo danh mục (Biểu đồ tròn)":
+    if chart_type == "🥧 Spending by Category (Pie chart)":
         # ⭐️ SỬA LỖI: Chỉ dropna cho các cột cần thiết cho biểu đồ này
         df_pie = df.dropna(subset=['TOTAL', 'CATEGORY'])
         if not df_pie.empty:
-            fig = px.pie(df_pie, names='CATEGORY', values='TOTAL', title='Tỷ trọng chi tiêu theo từng danh mục')
+            fig = px.pie(df_pie, names='CATEGORY', values='TOTAL', title='Spending amount by category')
             st.plotly_chart(fig, use_container_width=True)
         else:
-            st.warning("Không có đủ dữ liệu (Danh mục, Tổng tiền) để vẽ biểu đồ này.")
+            st.warning("📭 Your archive(Danh mục, Tổng tiền) is empty. Upload a receipt to unlock your story")
 
-    elif chart_type == "Chi tiêu theo thời gian (Biểu đồ đường)":
+    elif chart_type == "📈 Spending Over Time (Line Graph)":
         # ⭐️ SỬA LỖI: Chỉ dropna cho các cột cần thiết cho biểu đồ này
         df_line = df.dropna(subset=['TOTAL', 'DATE'])
         if not df_line.empty:
@@ -319,27 +319,27 @@ def page_visualization():
             fig = px.line(daily_spending, x='DATE', y='TOTAL', title='Tổng chi tiêu theo ngày', markers=True)
             st.plotly_chart(fig, use_container_width=True)
         else:
-            st.warning("Không có đủ dữ liệu (Ngày, Tổng tiền) để vẽ biểu đồ này.")
+            st.warning("Not enough info (Ngày, Tổng tiền) to draw this chart!")
             
-    elif chart_type == "Top 5 nhà cung cấp chi tiêu nhiều nhất (Biểu đồ cột)":
+    elif chart_type == "💪Top 5 Companies Most Spent on (Bar Chart)":
         # ⭐️ SỬA LỖI: Chỉ dropna cho các cột cần thiết cho biểu đồ này
         df_bar = df.dropna(subset=['TOTAL', 'COMPANY'])
         if not df_bar.empty:
             top_companies = df_bar.groupby('COMPANY')['TOTAL'].sum().nlargest(5).reset_index()
-            fig = px.bar(top_companies, x='COMPANY', y='TOTAL', title='Top 5 nhà cung cấp có chi tiêu cao nhất')
+            fig = px.bar(top_companies, x='COMPANY', y='TOTAL', title='💪Top 5 Companies Most Spent on (Bar Chart)')
             st.plotly_chart(fig, use_container_width=True)
         else:
-            st.warning("Không có đủ dữ liệu (Công ty, Tổng tiền) để vẽ biểu đồ này.")
+            st.warning("Not enough info (Công ty, Tổng tiền) to draw this graph!")
 
 def page_chatbot():
-    st.header("Chatbot Tư vấn Tài chính")
+    st.header("🤓Bill Fye the Finance Guy")
     
     if not GEMINI_AVAILABLE:
-        st.error("Tính năng này yêu cầu Google API Key. Vui lòng cấu hình secrets để sử dụng.")
+        st.error("This feature requires Google API Key. Arrange secrets to use.")
         return
 
     if st.session_state.data_df.empty:
-        st.warning("Chưa có dữ liệu chi tiêu để tư vấn. Vui lòng tải hóa đơn lên trước.")
+        st.warning("Not enough info for Bill Nye. Let's upload you receipts!")
         return
 
     # Khởi tạo mô hình Gemini
@@ -355,13 +355,13 @@ def page_chatbot():
     
     # Các câu hỏi gợi ý
     suggested_questions = [
-        "Tôi đã chi tiêu nhiều nhất cho danh mục nào?",
-        "Tổng chi tiêu của tôi trong tháng này là bao nhiêu?",
-        "Phân tích xu hướng chi tiêu của tôi."
+        "What category did I spend the most on?",
+        "How much did I spend this month?",
+        "Analyze my buying trends🤯"
     ]
     
     st.write("---")
-    st.write("Gợi ý cho bạn:")
+    st.write("Ask Bill Fye 🤑:")
     cols = st.columns(len(suggested_questions))
     for i, question in enumerate(suggested_questions):
         if cols[i].button(question):
@@ -370,7 +370,7 @@ def page_chatbot():
                 st.markdown(question)
             
             with st.chat_message("assistant"):
-                with st.spinner("Bot đang suy nghĩ..."):
+                with st.spinner("☕ Bill Fye is reading your receipt..."):
                     prompt = f"""
                     Bạn là một trợ lý tài chính cá nhân. Dựa trên dữ liệu chi tiêu sau đây:
                     --- DỮ LIỆU ---
@@ -385,13 +385,13 @@ def page_chatbot():
 
 
     # Nhận input từ người dùng
-    if user_prompt := st.chat_input("Bạn muốn hỏi gì về chi tiêu của mình?"):
+    if user_prompt := st.chat_input("What do you want to ask Bill Fye?"):
         st.session_state.chat_history.append(("user", user_prompt))
         with st.chat_message("user"):
             st.markdown(user_prompt)
 
         with st.chat_message("assistant"):
-            with st.spinner("Bot đang suy nghĩ..."):
+            with st.spinner("🤓Bill Fye is thinking..."):
                 prompt = f"""
                 Bạn là một trợ lý tài chính cá nhân. Dựa trên dữ liệu chi tiêu sau đây:
                 --- DỮ LIỆU ---
@@ -408,10 +408,10 @@ def page_chatbot():
 
 # --- THANH SIDEBAR ĐIỀU HƯỚNG ---
 
-st.sidebar.title("Quản lý Tài chính Thông minh")
+st.sidebar.title("🔥 Ember: Personal Finance powered by AI.")
 page = st.sidebar.radio(
-    "Điều hướng",
-    ["🏠 Tải Hóa Đơn", "📊 Trực Quan Hóa", "🗃️ Kho Dữ Liệu", "🤖 Chatbot Tư Vấn"]
+    "Keep the transactions. Remember the warmth.",
+    ["🏠 Upload your bill", "📊 Trực Quan Hóa", "Your receipts", "🤓Bill Fye the Finance Guy"]
 )
 
 if page == "🏠 Tải Hóa Đơn":
@@ -428,3 +428,9 @@ try:
     ...
 except Exception:
     st.error("⚠️ Something went wrong while loading the AI model. Please try again later.")
+
+st.set_page_config(
+    page_title="Ember",
+    page_icon="🔥",
+    layout="wide"
+)
