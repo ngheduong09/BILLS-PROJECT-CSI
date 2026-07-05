@@ -228,15 +228,20 @@ def page_data_storage():
     
     # Hiển thị bảng dữ liệu có thể chỉnh sửa
     edited_df = st.data_editor(
-        df_with_delete,
-        hide_index=True,
-        # Cấu hình để cột "Xóa" là một checkbox
-        column_config={"Delete": st.column_config.CheckboxColumn(required=True)},
-        disabled=st.session_state.data_df.columns # Không cho phép sửa các cột dữ liệu khác
-    )
+    df_with_delete,
+    hide_index=True,
+    column_config={
+        "Delete": st.column_config.CheckboxColumn(
+            "🗑️ Delete",
+            help="Select the receipts you want to remove."
+        )
+    },
+    disabled=st.session_state.data_df.columns
+)
 
     # Lấy danh sách các dòng được chọn để xóa
-    rows_to_delete = edited_df[edited_df["Xóa"]].index
+    st.write(edited_df.columns)
+    rows_to_delete = edited_df[edited_df["Delete"]].index
 
     if st.button("🗑️ Delete Selected Receipts", type="primary", disabled=len(rows_to_delete) == 0):
         # Lấy lại DataFrame gốc từ session_state
