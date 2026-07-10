@@ -8,6 +8,23 @@ import numpy as np
 import google.generativeai as genai
 import plotly.express as px
 
+#supabase 
+import streamlit as st
+from supabase import create_client
+
+# other imports...
+
+supabase = create_client(
+    st.secrets["SUPABASE_URL"],
+    st.secrets["SUPABASE_KEY"]
+)
+try:
+    response = supabase.table("receipts").select("*").limit(1).execute()
+    print("✅ Supabase connected successfully!")
+except Exception as e:
+    print("❌ Supabase connection failed:", e)
+
+
 # --- CẤU HÌNH VÀ TẢI TÀI NGUYÊN ---
 
 # Cấu hình API Key cho Gemini (Lấy từ Google AI Studio)
