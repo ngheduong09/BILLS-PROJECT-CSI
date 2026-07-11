@@ -483,26 +483,45 @@ def page_chatbot():
         st.rerun()
 
 
-# --- THANH SIDEBAR ĐIỀU HƯỚNG ---
+# ==========================
+# Authentication Gate
+# ==========================
 
-st.sidebar.title("🔥 Ember: Personal Finance powered by AI.")
-page = st.sidebar.radio(
-    "Keep the transactions. Remember the warmth.",
-    ["🏠Upload your bill", "📊Visualize", "🗃️Archives", "🤓Bill Fye the Finance Guy"]
-)
+if st.session_state.user is None:
+    page_auth()
 
-if page == "🏠Upload your bill":
-    page_home()
-elif page == "📊Visualize":
-    page_visualization()
-elif page == "🗃️Archives":
-    page_data_storage()
-elif page == "🤓Bill Fye the Finance Guy":
-    page_chatbot()
+else:
+    st.sidebar.title("🔥 Ember")
+
+    st.sidebar.success(f"Logged in as\n{st.session_state.user.email}")
+
+    if st.sidebar.button("🚪 Log Out"):
+        supabase.auth.sign_out()
+        st.session_state.user = None
+        st.rerun()
+
+    page = st.sidebar.radio(
+        "Keep the transactions. Remember the warmth.",
+        [
+            "🏠 Upload your bill",
+            "📊 Visualize",
+            "🗃️ Archives",
+            "🤓 Bill Fye"
+        ]
+    )
+
+    if page == "🏠 Upload your bill":
+        page_home()
+
+    elif page == "📊 Visualize":
+        page_visualization()
+
+    elif page == "🗃️ Archives":
+        page_data_storage()
+
+    elif page == "🤓 Bill Fye":
+        page_chatbot()
 
 
-try:
-    ...
-except Exception:
-    st.error("⚠️ Something went wrong while loading the AI model. Please try again later.")
+
 
