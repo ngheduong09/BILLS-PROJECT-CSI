@@ -506,3 +506,7 @@ try:
 except Exception:
     st.error("⚠️ Something went wrong while loading the AI model. Please try again later.")
 
+if st.session_state.user is None:
+    page_auth()
+else:
+    # show sidebar
