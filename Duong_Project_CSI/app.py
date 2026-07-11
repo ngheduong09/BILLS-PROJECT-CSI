@@ -162,6 +162,45 @@ st.set_page_config(
     layout="wide"
 )
 
+def page_auth():
+    st.title("🔥 Welcome to Ember")
+    st.write("Sign in to turn your finances into memories.")
+
+    auth_mode = st.radio(
+        "Choose an option:",
+        ["Log In", "Create Account"],
+        horizontal=True
+    )
+
+    email = st.text_input("Email")
+    password = st.text_input("Password", type="password")
+
+    if auth_mode == "Create Account":
+        if st.button("Create Account"):
+            try:
+                supabase.auth.sign_up({
+                    "email": email,
+                    "password": password
+                })
+                st.success("Account created! Check your email to verify your account.")
+            except Exception as e:
+                st.error(str(e))
+
+    else:
+        if st.button("Log In"):
+            try:
+                response = supabase.auth.sign_in_with_password({
+                    "email": email,
+                    "password": password
+                })
+
+                st.session_state.user = response.user
+                st.success("Logged in!")
+                st.rerun()
+
+            except Exception as e:
+                st.error(str(e))
+
 def page_home():
     st.header("Welcome back.")
     st.write("Upload receipts and let Ember organize, understand, and remember them.")
