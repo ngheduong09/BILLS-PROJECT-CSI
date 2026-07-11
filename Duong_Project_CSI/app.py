@@ -90,6 +90,9 @@ if 'data_df' not in st.session_state:
 if 'chat_history' not in st.session_state:
     st.session_state.chat_history = []
 
+# Authentication
+if "user" not in st.session_state:
+    st.session_state.user = None
 
 # --- CÁC HÀM XỬ LÝ (GIỮ NGUYÊN TỪ PHIÊN BẢN TRƯỚC) ---
 
