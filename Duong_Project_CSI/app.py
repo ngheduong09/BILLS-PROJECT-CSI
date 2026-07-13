@@ -440,44 +440,33 @@ def page_chatbot():
         st.rerun()
 
 
-# ==========================
-# Authentication Gate
-# ==========================
 
-if st.session_state.user is None:
-    page_auth()
 
-else:
-    st.sidebar.title("🔥 Ember")
+# --- SIDEBAR ---
 
-    st.sidebar.success(f"Logged in as\n{st.session_state.user.email}")
+st.sidebar.title("🔥 Ember: Personal Finance powered by AI")
 
-    if st.sidebar.button("🚪 Log Out"):
-        supabase.auth.sign_out()
-        st.session_state.user = None
-        st.rerun()
+page = st.sidebar.radio(
+    "Keep the transactions. Remember the warmth.",
+    [
+        "🏠 Upload your bill",
+        "📊 Visualize",
+        "🗃️ Archives",
+        "🤓 Bill Fye"
+    ]
+)
 
-    page = st.sidebar.radio(
-        "Keep the transactions. Remember the warmth.",
-        [
-            "🏠 Upload your bill",
-            "📊 Visualize",
-            "🗃️ Archives",
-            "🤓 Bill Fye"
-        ]
-    )
+if page == "🏠 Upload your bill":
+    page_home()
 
-    if page == "🏠 Upload your bill":
-        page_home()
+elif page == "📊 Visualize":
+    page_visualization()
 
-    elif page == "📊 Visualize":
-        page_visualization()
+elif page == "🗃️ Archives":
+    page_data_storage()
 
-    elif page == "🗃️ Archives":
-        page_data_storage()
-
-    elif page == "🤓 Bill Fye":
-        page_chatbot()
+elif page == "🤓 Bill Fye":
+    page_chatbot()
 
 
 
