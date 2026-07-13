@@ -452,7 +452,7 @@ page = st.sidebar.radio(
         "🏠 Upload your bill",
         "📊 Visualize",
         "🗃️ Archives",
-        "🤓 Bill Fye"
+        "🤓 Bill Fye the Finance Guy"
     ]
 )
 
