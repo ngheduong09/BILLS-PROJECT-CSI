@@ -359,7 +359,6 @@ def page_visualization():
 
 def page_chatbot():
     st.header("🤓Bill Fye the Finance Guy")
-    st.success("Chatbot loaded successfully!")
     if not GEMINI_AVAILABLE:
         st.error("This feature requires Google API Key. Arrange secrets to use.")
         return
