@@ -359,7 +359,7 @@ def page_visualization():
 
 def page_chatbot():
     st.header("🤓Bill Fye the Finance Guy")
-    
+    st.success("Chatbot loaded successfully!")
     if not GEMINI_AVAILABLE:
         st.error("This feature requires Google API Key. Arrange secrets to use.")
         return
@@ -415,7 +415,7 @@ def page_chatbot():
 
 
     # Nhận input từ người dùng
-    if user_prompt := st.chat_input("What do you want to ask Bill Fye?"):
+    if user_prompt := st.chat_input("What do you want to ask Bill Fye today? 🤔"):
         st.session_state.chat_history.append(("user", user_prompt))
         with st.chat_message("user"):
             st.markdown(user_prompt)
