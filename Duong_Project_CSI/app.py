@@ -465,7 +465,7 @@ elif page == "📊 Visualize":
 elif page == "🗃️ Archives":
     page_data_storage()
 
-elif page == "🤓 Bill Fye":
+elif page == "🤓 Bill Fye the Finance Guy":
     page_chatbot()
 
 
