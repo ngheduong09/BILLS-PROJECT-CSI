@@ -77,6 +77,7 @@ def load_resources():
 
 # Tải tài nguyên
 tokenizer, model = load_resources()
+
 @st.cache_resource
 def load_ocr():
     return easyocr.Reader(["en"], gpu=False)
@@ -112,16 +113,16 @@ def normalize_box(box, width, height):
         int(1000 * (box[2] / width)), int(1000 * (box[3] / height)),
     ]
 
-@st.cache_resource
-def load_ocr():
-    return easyocr.Reader(["en"], gpu=False)
+
 
 def process_image(image):
     width, height = image.size
 
     reader = load_ocr()
     ocr_results = reader.readtext(np.array(image))
-    if not ocr_results: return None, None
+
+    if not ocr_results:
+        return None, None
 
     words = [res[1] for res in ocr_results]
     unnormalized_boxes = [[int(p) for p in box[0]] + [int(p) for p in box[2]] for box, _, _ in ocr_results]
