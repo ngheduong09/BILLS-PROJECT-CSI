@@ -201,7 +201,7 @@ def page_home():
             new_df = pd.DataFrame(new_data)
             st.session_state.data_df = pd.concat([st.session_state.data_df, new_df], ignore_index=True)
             st.session_state.data_df.to_csv(DATA_FILE, index=False)
-            st.success(f"🧨Memory{len(new_data)} safely kept in 🗃️Archives!")
+            st.success(f"🧨Memory{len(new_data)} saved to 🗃️Archives!")
             st.balloons()
 
 
