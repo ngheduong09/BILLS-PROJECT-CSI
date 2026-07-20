@@ -248,7 +248,7 @@ def page_data_storage():
     # --- TÍNH NĂNG XÓA TỪNG HÓA ĐƠN ---
     # Thêm một cột 'Xóa' vào DataFrame để hiển thị các nút bấm
     # Sử dụng st.data_editor để có thể tương tác
-    st.write("Delete receiptss by ticking the box in the row and the button below..")
+    st.write("Review your saved receipts below.")
     
     # Chuyển DataFrame sang định dạng có thể chỉnh sửa
     # Thêm cột "delete" để người dùng chọn
@@ -257,47 +257,31 @@ def page_data_storage():
     
     # Hiển thị bảng dữ liệu có thể chỉnh sửa
     edited_df = st.data_editor(
-    df_with_delete,
-    hide_index=True,
-    column_config={
-        "Delete": st.column_config.CheckboxColumn(
-            "🗑️ Delete",
-            help="Select the receipts you want to remove."
-        )
-    },
-    disabled=st.session_state.data_df.columns
-)
-
-st.markdown("---")
-
-# Download archive only
-csv = st.session_state.data_df.to_csv(index=False).encode("utf-8")
-
-st.download_button(
-    label="📥 Export Your Data (.csv)",
-    data=csv,
-    file_name="hoa_don_da_trich_xuat.csv",
-    mime="text/csv",
-    key="download-csv",
-)
+        df_with_delete,
+        hide_index=True,
+        column_config={
+            "Delete": st.column_config.CheckboxColumn(
+                "🗑️ Delete",
+                help="Select the receipts you want to remove."
+            )
+        },
+        disabled=st.session_state.data_df.columns
+    )
 
     st.markdown("---")
 
-    # --- TÍNH NĂNG TẢI VỀ VÀ RESET ---
-    col1, col2 = st.columns(2)
+    csv = st.session_state.data_df.to_csv(index=False).encode("utf-8")
 
-    # Cột 1: Nút tải về
-    with col1:
-        csv = st.session_state.data_df.to_csv(index=False).encode('utf-8')
-        st.download_button(
-           "📥 Export Your Data (.csv)",
-           csv,
-           "hoa_don_da_trich_xuat.csv",
-           "text/csv",
-           key='download-csv'
-        )
+    st.download_button(
+        label="📥 Export Your Data (.csv)",
+        data=csv,
+        file_name="hoa_don_da_trich_xuat.csv",
+        mime="text/csv",
+        key="download-csv"
+    )
 
-c
+
+
 
 def page_visualization():
     st.header("📈 Spending Insights")
