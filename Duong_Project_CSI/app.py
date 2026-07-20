@@ -56,37 +56,20 @@ import os
 def load_resources():
     tokenizer = LayoutLMTokenizerFast.from_pretrained(MODEL_PATH)
     model = LayoutLMForTokenClassification.from_pretrained(MODEL_PATH)
+    reader = easyocr.Reader(['en'], gpu=False)
 
-    
-
-    id2label = {
-        0: "S-COMPANY",
-        1: "S-DATE",
-        2: "S-ADDRESS",
-        3: "S-TOTAL",
-        4: "O",
-    }
-
+    id2label = {0: "S-COMPANY", 1: "S-DATE", 2: "S-ADDRESS", 3: "S-TOTAL", 4: "O"}
     label2id = {label: id for id, label in id2label.items()}
-
+    
     model.config.id2label = id2label
     model.config.label2id = label2id
-
-    return tokenizer, model
-
+    
+    return tokenizer, model, reader
 
 # Tải tài nguyên
-tokenizer, model = load_resources()
+tokenizer, model, reader = load_resources()
+LABELS = [label.replace("S-", "") for label in model.config.id2label.values() if label != "O"]
 
-@st.cache_resource
-def load_ocr():
-    return easyocr.Reader(["en"], gpu=False)
-
-LABELS = [
-    label.replace("S-", "")
-    for label in model.config.id2label.values()
-    if label != "O"
-]
 
 # --- KHỞI TẠO SESSION STATE ---
 # Session state để lưu dữ liệu giữa các lần tương tác
@@ -113,16 +96,10 @@ def normalize_box(box, width, height):
         int(1000 * (box[2] / width)), int(1000 * (box[3] / height)),
     ]
 
-
-
 def process_image(image):
     width, height = image.size
-
-    reader = load_ocr()
     ocr_results = reader.readtext(np.array(image))
-
-    if not ocr_results:
-        return None, None
+    if not ocr_results: return None, None
 
     words = [res[1] for res in ocr_results]
     unnormalized_boxes = [[int(p) for p in box[0]] + [int(p) for p in box[2]] for box, _, _ in ocr_results]
@@ -224,7 +201,7 @@ def page_home():
             new_df = pd.DataFrame(new_data)
             st.session_state.data_df = pd.concat([st.session_state.data_df, new_df], ignore_index=True)
             st.session_state.data_df.to_csv(DATA_FILE, index=False)
-            st.success(f"🧨Memory{len(new_data)} saved to 🗃️Archives!")
+            st.success(f"🧨Memory{len(new_data)} safely kept in `{DATA_FILE}`!")
             st.balloons()
 
 
@@ -258,7 +235,7 @@ def page_data_storage():
     # --- TÍNH NĂNG XÓA TỪNG HÓA ĐƠN ---
     # Thêm một cột 'Xóa' vào DataFrame để hiển thị các nút bấm
     # Sử dụng st.data_editor để có thể tương tác
-    st.write("Review your saved receipts below.")
+    st.write("Delete receiptss by ticking the box in the row and the button below..")
     
     # Chuyển DataFrame sang định dạng có thể chỉnh sửa
     # Thêm cột "delete" để người dùng chọn
@@ -267,31 +244,63 @@ def page_data_storage():
     
     # Hiển thị bảng dữ liệu có thể chỉnh sửa
     edited_df = st.data_editor(
-        df_with_delete,
-        hide_index=True,
-        column_config={
-            "Delete": st.column_config.CheckboxColumn(
-                "🗑️ Delete",
-                help="Select the receipts you want to remove."
-            )
-        },
-        disabled=st.session_state.data_df.columns
-    )
+    df_with_delete,
+    hide_index=True,
+    column_config={
+        "Delete": st.column_config.CheckboxColumn(
+            "🗑️ Delete",
+            help="Select the receipts you want to remove."
+        )
+    },
+    disabled=st.session_state.data_df.columns
+)
+
+    # Lấy danh sách các dòng được chọn để xóa
+    st.write(edited_df.columns)
+    rows_to_delete = edited_df[edited_df["Delete"]].index
+
+    if st.button("🗑️ Delete Selected Receipts", type="primary", disabled=len(rows_to_delete) == 0):
+        # Lấy lại DataFrame gốc từ session_state
+        df_original = st.session_state.data_df
+        # Xóa các hàng đã chọn
+        df_updated = df_original.drop(index=rows_to_delete).reset_index(drop=True)
+        
+        # Cập nhật lại session_state và file CSV
+        st.session_state.data_df = df_updated
+        st.session_state.data_df.to_csv(DATA_FILE, index=False)
+        
+        st.success(f"Successfully remove {len(rows_to_delete)} receipt🧹")
+        # Chạy lại script để cập nhật giao diện ngay lập tức
+        st.rerun()
 
     st.markdown("---")
 
-    csv = st.session_state.data_df.to_csv(index=False).encode("utf-8")
+    # --- TÍNH NĂNG TẢI VỀ VÀ RESET ---
+    col1, col2 = st.columns(2)
 
-    st.download_button(
-        label="📥 Export Your Data (.csv)",
-        data=csv,
-        file_name="hoa_don_da_trich_xuat.csv",
-        mime="text/csv",
-        key="download-csv"
-    )
+    # Cột 1: Nút tải về
+    with col1:
+        csv = st.session_state.data_df.to_csv(index=False).encode('utf-8')
+        st.download_button(
+           "📥 Export Your Data (.csv)",
+           csv,
+           "hoa_don_da_trich_xuat.csv",
+           "text/csv",
+           key='download-csv'
+        )
 
-
-
+    # Cột 2: Nút Reset
+    with col2:
+        if st.button("🔴 Clear My Archive", help="⚠️ This will permanently delete all saved receipts!"):
+            # Tạo DataFrame rỗng
+            empty_df = pd.DataFrame(columns=st.session_state.data_df.columns)
+            
+            # Cập nhật session_state và ghi đè file CSV
+            st.session_state.data_df = empty_df
+            st.session_state.data_df.to_csv(DATA_FILE, index=False)
+            
+            st.warning("✨ Your archive has been cleared.")
+            st.rerun()
 
 def page_visualization():
     st.header("📈 Spending Insights")
@@ -457,7 +466,6 @@ elif page == "🗃️ Archives":
 
 elif page == "🤓 Bill Fye the Finance Guy":
     page_chatbot()
-
 
 
 
