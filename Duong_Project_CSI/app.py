@@ -290,17 +290,17 @@ def page_data_storage():
         )
 
     # Cột 2: Nút Reset
-    with col2:
-        if st.button("🔴 Clear My Archive", help="⚠️ This will permanently delete all saved receipts!"):
-            # Tạo DataFrame rỗng
-            empty_df = pd.DataFrame(columns=st.session_state.data_df.columns)
+    # with col2:
+    #     if st.button("🔴 Clear My Archive", help="⚠️ This will permanently delete all saved receipts!"):
+    #         # Tạo DataFrame rỗng
+    #         empty_df = pd.DataFrame(columns=st.session_state.data_df.columns)
             
-            # Cập nhật session_state và ghi đè file CSV
-            st.session_state.data_df = empty_df
-            st.session_state.data_df.to_csv(DATA_FILE, index=False)
+            # # Cập nhật session_state và ghi đè file CSV
+            # st.session_state.data_df = empty_df
+            # st.session_state.data_df.to_csv(DATA_FILE, index=False)
             
-            st.warning("✨ Your archive has been cleared.")
-            st.rerun()
+            # st.warning("✨ Your archive has been cleared.")
+            # st.rerun()
 
 def page_visualization():
     st.header("📈 Spending Insights")
