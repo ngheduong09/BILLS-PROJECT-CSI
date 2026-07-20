@@ -57,7 +57,7 @@ def load_resources():
     tokenizer = LayoutLMTokenizerFast.from_pretrained(MODEL_PATH)
     model = LayoutLMForTokenClassification.from_pretrained(MODEL_PATH)
 
-    reader = easyocr.Reader(["en"], gpu=False)
+    
 
     id2label = {
         0: "S-COMPANY",
@@ -72,7 +72,7 @@ def load_resources():
     model.config.id2label = id2label
     model.config.label2id = label2id
 
-    return tokenizer, model, reader
+    return tokenizer, model
 
 
 # Tải tài nguyên
