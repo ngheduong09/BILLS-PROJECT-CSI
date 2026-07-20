@@ -56,24 +56,33 @@ import os
 def load_resources():
     tokenizer = LayoutLMTokenizerFast.from_pretrained(MODEL_PATH)
     model = LayoutLMForTokenClassification.from_pretrained(MODEL_PATH)
-    @st.cache_resource
-def load_ocr():
-    return easyocr.Reader(["en"], gpu=False)
 
-reader = load_ocr()
+    reader = easyocr.Reader(["en"], gpu=False)
 
-    id2label = {0: "S-COMPANY", 1: "S-DATE", 2: "S-ADDRESS", 3: "S-TOTAL", 4: "O"}
+    id2label = {
+        0: "S-COMPANY",
+        1: "S-DATE",
+        2: "S-ADDRESS",
+        3: "S-TOTAL",
+        4: "O",
+    }
+
     label2id = {label: id for id, label in id2label.items()}
-    
+
     model.config.id2label = id2label
     model.config.label2id = label2id
-    
+
     return tokenizer, model, reader
+
 
 # Tải tài nguyên
 tokenizer, model, reader = load_resources()
-LABELS = [label.replace("S-", "") for label in model.config.id2label.values() if label != "O"]
 
+LABELS = [
+    label.replace("S-", "")
+    for label in model.config.id2label.values()
+    if label != "O"
+]
 
 # --- KHỞI TẠO SESSION STATE ---
 # Session state để lưu dữ liệu giữa các lần tương tác
