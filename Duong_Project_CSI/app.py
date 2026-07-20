@@ -76,7 +76,10 @@ def load_resources():
 
 
 # Tải tài nguyên
-tokenizer, model, reader = load_resources()
+tokenizer, model = load_resources()
+@st.cache_resource
+def load_ocr():
+    return easyocr.Reader(["en"], gpu=False)
 
 LABELS = [
     label.replace("S-", "")
@@ -109,8 +112,14 @@ def normalize_box(box, width, height):
         int(1000 * (box[2] / width)), int(1000 * (box[3] / height)),
     ]
 
+@st.cache_resource
+def load_ocr():
+    return easyocr.Reader(["en"], gpu=False)
+
 def process_image(image):
     width, height = image.size
+
+    reader = load_ocr()
     ocr_results = reader.readtext(np.array(image))
     if not ocr_results: return None, None
 
