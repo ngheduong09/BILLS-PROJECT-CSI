@@ -255,23 +255,23 @@ def page_data_storage():
     disabled=st.session_state.data_df.columns
 )
 
-    # Lấy danh sách các dòng được chọn để xóa
-    st.write(edited_df.columns)
-    rows_to_delete = edited_df[edited_df["Delete"]].index
+    # # Lấy danh sách các dòng được chọn để xóa
+    # st.write(edited_df.columns)
+    # rows_to_delete = edited_df[edited_df["Delete"]].index
 
-    if st.button("🗑️ Delete Selected Receipts", type="primary", disabled=len(rows_to_delete) == 0):
-        # Lấy lại DataFrame gốc từ session_state
-        df_original = st.session_state.data_df
-        # Xóa các hàng đã chọn
-        df_updated = df_original.drop(index=rows_to_delete).reset_index(drop=True)
+    # if st.button("🗑️ Delete Selected Receipts", type="primary", disabled=len(rows_to_delete) == 0):
+    #     # Lấy lại DataFrame gốc từ session_state
+    #     df_original = st.session_state.data_df
+    #     # Xóa các hàng đã chọn
+    #     df_updated = df_original.drop(index=rows_to_delete).reset_index(drop=True)
         
-        # Cập nhật lại session_state và file CSV
-        st.session_state.data_df = df_updated
-        st.session_state.data_df.to_csv(DATA_FILE, index=False)
+    #     # Cập nhật lại session_state và file CSV
+    #     st.session_state.data_df = df_updated
+    #     st.session_state.data_df.to_csv(DATA_FILE, index=False)
         
-        st.success(f"Successfully remove {len(rows_to_delete)} receipt🧹")
-        # Chạy lại script để cập nhật giao diện ngay lập tức
-        st.rerun()
+    #     st.success(f"Successfully remove {len(rows_to_delete)} receipt🧹")
+    #     # Chạy lại script để cập nhật giao diện ngay lập tức
+    #     st.rerun()
 
     st.markdown("---")
 
