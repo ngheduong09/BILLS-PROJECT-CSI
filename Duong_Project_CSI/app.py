@@ -56,7 +56,11 @@ import os
 def load_resources():
     tokenizer = LayoutLMTokenizerFast.from_pretrained(MODEL_PATH)
     model = LayoutLMForTokenClassification.from_pretrained(MODEL_PATH)
-    reader = easyocr.Reader(['en'], gpu=False)
+    @st.cache_resource
+def load_ocr():
+    return easyocr.Reader(["en"], gpu=False)
+
+reader = load_ocr()
 
     id2label = {0: "S-COMPANY", 1: "S-DATE", 2: "S-ADDRESS", 3: "S-TOTAL", 4: "O"}
     label2id = {label: id for id, label in id2label.items()}
